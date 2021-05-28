@@ -93,15 +93,13 @@ define websphere_application_server::profile::dmgr (
     fail('sdk_name is required when manage_sdk is true. E.g. 1.71_64')
   }
 
-  if ! $options {
-    $base_options = "-create -profileName ${profile_name} -profilePath ${_profile_base}/${profile_name} -templatePath ${_template_path} -serverType DEPLOYMENT_MANAGER -nodeName ${node_name} -hostName ${dmgr_host} -cellName ${cell}"
-  } else {
-    $base_options = $options
-  }
 
-  if $options && $admin_sec {
+  if $options != undef and $admin_sec {
     fail ( 'Cannot specify both options and admin_sec at the same time. Please include your admin security details in your options string')
+  } elsif $options != undef {
+    $_options = $options
   } else {
+    $base_options = "-create -profileName ${profile_name} -profilePath ${_profile_base}/${profile_name} -templatePath ${_template_path} -serverType DEPLOYMENT_MANAGER -nodeName ${node_name} -hostName ${dmgr_host} -cellName ${cell}"
     if $admin_sec {
       $_options = "${base_options} -enableAdminSecurity true -adminUserName ${wsadmin_user} -adminPassword ${wsadmin_pass}"
     } else {

@@ -103,20 +103,19 @@ define websphere_application_server::profile::appserver (
 
   ## Build our installation options if none are profided. These are mostly
   ## similar, but we do add extra to the 'app' profile type. Hackish.
-  if ! $options {
-    $base_options = "-create -profileName ${profile_name} -profilePath ${profile_base}/${profile_name} -templatePath ${_template_path} -nodeName ${node_name} -hostName ${::fqdn} -federateLater true -cellName standalone"
-  } else {
-    $base_options = $options
-  }
 
-  if $options && $admin_sec {
+  if $options != undef and $admin_sec {
     fail ( 'Cannot specify both options and admin_sec at the same time. Please include your admin security details in your options string')
+  } elsif $options != undef {
+    $_options = $options
   } else {
+    $base_options = "-create -profileName ${profile_name} -profilePath ${profile_base}/${profile_name} -templatePath ${_template_path} -nodeName ${node_name} -hostName ${::fqdn} -federateLater true -cellName standalone"
     if $admin_sec {
       $_options = "${base_options} -enableAdminSecurity true -adminUserName ${wsadmin_user} -adminPassword ${wsadmin_pass}"
     } else {
       $_options = $base_options
     }
+  }
 
   validate_string($_options)
 
